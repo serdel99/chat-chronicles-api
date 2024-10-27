@@ -6,9 +6,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TwitchService } from 'src/twitch/twitch.service';
 import { TwitchModule } from 'src/twitch/twitch.module';
+import { PrismaService } from 'src/prisma.service';
 
 @Module({
   imports: [
+    ConfigModule,
     PassportModule,
     TwitchModule,
     JwtModule.registerAsync({
@@ -20,6 +22,6 @@ import { TwitchModule } from 'src/twitch/twitch.module';
     })],
 
   exports: [AuthService],
-  providers: [AuthService, LocalStrategy, TwitchService]
+  providers: [AuthService, LocalStrategy, TwitchService, PrismaService]
 })
 export class AuthModule { }

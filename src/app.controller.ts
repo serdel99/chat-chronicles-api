@@ -14,9 +14,9 @@ export class AppController {
 
 
   @Post('auth/login')
-  async login(@Body() signInDto: { code: string }) {
+  async login(@Body() signInDto: { id_token: string }) {
     try {
-      const response = await this.authService.login(signInDto.code)
+      const response = await this.authService.validateIdToken(signInDto.id_token)
 
       return response
 
