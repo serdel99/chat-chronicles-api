@@ -7,11 +7,13 @@ import { StoryController } from './story/story.controller';
 import { StoryService } from './story/story.service';
 import { TwitchService } from './twitch/twitch.service';
 import { TwitchRepository } from './twitch/twitch.repository';
+import { AuthModule } from './auth/auth.module';
+import { TwitchModule } from './twitch/twitch.module';
 
 
 @Module({
-  imports: [ConfigModule.forRoot(), HttpModule],
+  imports: [ConfigModule, HttpModule, AuthModule, TwitchModule],
   controllers: [AppController, StoryController],
-  providers: [AppService, StoryService, TwitchService, TwitchRepository],
+  providers: [AppService, StoryService],
 })
 export class AppModule { }
