@@ -13,10 +13,24 @@ datasource db {
   url  	    = env("DATABASE_URL")
 }
 
-model User {
-  twitch_id String @unique @id 
-  display_name String
-  access_token String
-  refresh_token String
+model Story {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  user_id String 
+  enemy String
+  hero String
+  hero_name String
+  enemy_name String
+  story_acts StoryAct[]
 }
 
+model StoryAct {
+    id        Int      @id @default(autoincrement())
+    createdAt DateTime @default(now())
+    story Story @relation(fields: [story_id], references: [id])
+    story_id Int 
+    type 
+    data Json
+}
+
+String

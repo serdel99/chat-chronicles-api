@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { StoryService } from './story.service';
+import { OpeniaService } from './openia.service';
 
-describe('StoryService', () => {
-  let service: StoryService;
+describe('OpeniaService', () => {
+  let service: OpeniaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [StoryService],
+      providers: [OpeniaService],
     }).compile();
 
-    service = module.get<StoryService>(StoryService);
+    service = module.get<OpeniaService>(OpeniaService);
   });
 
   it('should be defined', () => {
