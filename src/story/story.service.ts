@@ -11,10 +11,11 @@ export class StoryService {
 
     constructor(
         private openIA: OpeniaService,
-        private storyRepository: StoryRepository) {
+        private storyRepository: StoryRepository,
+        private twitchService: TwitchService
+    ) {
 
     }
-
 
     async initStory({ hero, context, userId }) {
         const randomEnemy = Characters.filter((characters) => characters !== hero)[Math.floor(Math.random() * Characters.length - 1)]
@@ -47,6 +48,13 @@ export class StoryService {
 
         return storyCreated
 
+    }
+
+    async responseWithPoll({ user, storyId, response }) {
+        const question = "Test question"
+        const options = ["Test1", "Test 2", "Test 4", "Test5"]
+        const res = await this.twitchService.initPoll({ user, question, options })
+        return res
     }
 
 

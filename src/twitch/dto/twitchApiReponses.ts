@@ -18,3 +18,15 @@ export type User = {
     "display_name": string
     "profile_image_url": string,
 }
+
+export type CreatePollResponse = {
+    data: [
+        {
+            id: string,
+            votes: number,
+            status: "ACTIVE" | "COMPLETED" | "TERMINATED" | "ARCHIVED" | "MODEREATED" | "INVALID"
+            duration: number
+            started_at: string
+        }
+    ]
+}

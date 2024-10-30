@@ -7,21 +7,30 @@ import {
 
 import { Request } from 'express';
 import { AuthService } from './auth.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    constructor(private authService: AuthService) { }
+    constructor(private authService: AuthService, private configService: ConfigService) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest();
+        const request: Request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
 
-        if (!token) {
+        const access_token = request.headers["x-twitch-token"];
+
+        if (!token || !access_token) {
             throw new UnauthorizedException();
         }
         try {
             const decoded = await this.authService.validateIdToken(token)
-            request['user'] = decoded.payload;
+            request['user'] = { ...decoded.payload, access_token };
+
+            if (this.configService.get("ENABLE_TWITCH_MOCK")) {
+                request['user'].sub = this.configService.get("TWITCH_USER_MOCK");
+                request["user"].access_token = this.configService.get("TWITCH_TOKEN_MOCK");
+            }
+
         } catch {
             throw new UnauthorizedException();
         }
@@ -33,3 +42,4 @@ export class AuthGuard implements CanActivate {
         return id_token;
     }
 }
+

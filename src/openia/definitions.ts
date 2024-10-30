@@ -27,7 +27,7 @@ export const promptInitTemplate = ChatPromptTemplate.fromMessages([
         el heroe sera un {hero} el enemigo sera un {enemy},
         genera 4 elecciones que tenga que tomar el personaje principal para continuar la historia,
         no hagas referencia a los puntos de salud explicitamente en la historia,
-        termina el parrafo con una pregunta de una accion proxima a realizar sin decir explicitamente las opciones, es importante que muestres el texto en markdown utilizando headings, textos en bold, italic y blockquotes`
+        termina el parrafo con una pregunta de una accion proxima a realizar, No pongas en el parrafo explicitamente las opciones, es importante que muestres el texto en markdown utilizando headings, textos en bold, italic y blockquotes`
     ]
 ])
 
