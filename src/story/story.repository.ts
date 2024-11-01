@@ -7,6 +7,8 @@ import { Story, StoryAct } from "./dto/story";
 export class StoryRepository {
 
     constructor(private database: DatabaseService) {
+
+
     }
 
     async saveInitStory(story: Story, storyInitAct: StoryAct) {

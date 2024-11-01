@@ -17,7 +17,7 @@ export class StoryService {
 
     }
 
-    async initStory({ hero, context, userId }) {
+    async initStory({ hero, context, user }) {
         const randomEnemy = Characters.filter((characters) => characters !== hero)[Math.floor(Math.random() * Characters.length - 1)]
 
         const initStory = await this.openIA.generateStoryInit({
@@ -31,7 +31,7 @@ export class StoryService {
             hero_name: initStory.heroName,
             enemy: randomEnemy,
             enemy_name: initStory.enemyName,
-            user_id: userId
+            user_id: user.sub
         }
 
         const storyAct: StoryAct = {
@@ -40,22 +40,24 @@ export class StoryService {
                 enemy_healt: initStory.enemyHealt,
                 hero_healt: initStory.heroHealt,
                 next_history: initStory.nextHistory,
-                options: initStory.options
+                options: initStory.options,
+                action: initStory.action
             }
         }
 
+        await this.twitchService.subscribeEndPollEvent({ user });
+        await this.twitchService.initPoll({
+            user,
+            question: initStory.action,
+            options: initStory.options
+        })
         const storyCreated = await this.storyRepository.saveInitStory(story, storyAct);
-
         return storyCreated
-
     }
 
-    async responseWithPoll({ user, storyId, response }) {
-        const question = "Test question"
-        const options = ["Test1", "Test 2", "Test 4", "Test5"]
-        const res = await this.twitchService.initPoll({ user, question, options })
-        return res
-    }
+
+
+
 
 
 }

@@ -6,6 +6,7 @@ export type StoryAct = {
         enemy_healt: number,
         next_history: string
         options: string[]
+        action: string,
     }
 }
 

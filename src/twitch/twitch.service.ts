@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { TwitchRepository } from './twitch.repository';
 import { User } from 'src/auth/types/user';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class TwitchService {
 
-    constructor(private twitchRepository: TwitchRepository) { }
+    constructor(private twitchRepository: TwitchRepository, private configService: ConfigService) { }
 
     async getAccessToken(codeToken: string) {
         return this.twitchRepository.getOauthTokens(codeToken);
@@ -24,5 +25,22 @@ export class TwitchService {
         }
         const response = await this.twitchRepository.initPoll(user.access_token, pollOptions)
         return response.data[0];
+    }
+
+    async subscribeEndPollEvent({ user }) {
+        const data = {
+            type: "channel.poll.end",
+            version: "1",
+            condition: {
+                "broadcaster_user_id": user.sub
+            },
+            transport: {
+                "method": "webhook",
+                "callback": this.configService.getOrThrow("TWITCH_CALLBACK_URL"),
+                "secret": this.configService.getOrThrow("TWITCH_WEBHOOK_SECRET"),
+            }
+        }
+        const res = await this.twitchRepository.subscribeEvent({ data, acces_token: user.access_token });
+        return res.data
     }
 }

@@ -29,8 +29,6 @@ model StoryAct {
     createdAt DateTime @default(now())
     story Story @relation(fields: [story_id], references: [id])
     story_id Int 
-    type 
+    type String
     data Json
 }
-
-String

@@ -1,8 +1,9 @@
-import { Body, Controller, Post, Req, UseGuards, InternalServerErrorException, Logger, BadRequestException, Param } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards, InternalServerErrorException, Logger, BadRequestException, Param, Sse } from '@nestjs/common';
 
 import { AddResponseDto, CreateStoryDto } from './dto/requestBody';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { StoryService } from './story.service';
+import { interval, map, Observable } from 'rxjs';
 
 @Controller('story')
 export class StoryController {
@@ -17,11 +18,10 @@ export class StoryController {
       if (!createDto.hero) {
         throw new BadRequestException()
       }
-
       const response = await this.storyService.initStory({
         hero: createDto.hero,
         context: createDto.context,
-        userId: req.user.sub
+        user: req.user
       })
       return response
     } catch (e) {
@@ -30,23 +30,24 @@ export class StoryController {
     }
   }
 
-  @Post(":id/response/poll")
-  @UseGuards(AuthGuard)
-  async responseWithPoll(@Req() req, @Param("id") storyId, @Body() body: AddResponseDto) {
-    try {
-      const response = await this.storyService.responseWithPoll({
-        user: req.user,
-        storyId,
-        response: body.response
-      });
+  // @Post(":id/response/poll")
+  // @UseGuards(AuthGuard)
+  // async responseWithPoll(@Req() req, @Param("id") storyId, @Body() body: AddResponseDto) {
+  //   try {
+  //     const response = await this.storyService.responseWithPoll({
+  //       user: req.user,
+  //       storyId,
+  //       response: body.response
+  //     });
+  //     return response
+  //   } catch (e) {
+  //     throw new InternalServerErrorException();
+  //   }
+  // }
 
-      return response
-
-
-    } catch (e) {
-
-      throw new InternalServerErrorException();
-    }
+  @Sse("storyEvents")
+  storyEvents(): Observable<any> {
+    return interval(1000).pipe(map((_) => ({ data: { hello: 'world' } })));
   }
 
 }

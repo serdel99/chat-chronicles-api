@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { GetUserAccessTokenDto, User } from './dto/twitchApiReponses';
 import qs from 'qs';
 import { CreatePollBody } from './dto/twitchApiRequests';
+import { response } from 'express';
 
 
 @Injectable()
@@ -77,5 +78,10 @@ export class TwitchRepository implements OnApplicationBootstrap {
     async initPoll(acces_token, data: CreatePollBody) {
         const response = await this.httpService.axiosRef.post(`${this.baseUrl}/polls`, data, { headers: this.getHeaders(acces_token) })
         return response.data
+    }
+
+    async subscribeEvent({ data, acces_token }) {
+        const response = await this.httpService.axiosRef.post(`${this.baseUrl}/eventsub/subscriptions`, data, { headers: this.getHeaders(acces_token) })
+        return response;
     }
 }

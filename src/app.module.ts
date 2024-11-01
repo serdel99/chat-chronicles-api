@@ -10,10 +10,11 @@ import { TwitchModule } from './twitch/twitch.module';
 import { DatabaseService } from './database/database.service';
 import { OpeniaService } from './openia/openia.service';
 import { StoryRepository } from './story/story.repository';
+import { WebhooksModule } from './webhooks/webhooks.module';
 
 
 @Module({
-  imports: [ConfigModule, HttpModule, AuthModule, TwitchModule],
+  imports: [ConfigModule, HttpModule, AuthModule, TwitchModule, WebhooksModule],
   controllers: [AppController, StoryController],
   providers: [AppService, StoryService, StoryRepository, DatabaseService, OpeniaService],
 })
