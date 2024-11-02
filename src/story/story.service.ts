@@ -4,6 +4,7 @@ import { TwitchService } from 'src/twitch/twitch.service';
 import { Characters } from './story.characters';
 import { StoryRepository } from './story.repository';
 import { Story, StoryAct } from './dto/story';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class StoryService {
@@ -12,14 +13,14 @@ export class StoryService {
     constructor(
         private openIA: OpeniaService,
         private storyRepository: StoryRepository,
-        private twitchService: TwitchService
+        private twitchService: TwitchService,
+        private notificationService: NotificationService
     ) {
 
     }
 
     async initStory({ hero, context, user }) {
         const randomEnemy = Characters.filter((characters) => characters !== hero)[Math.floor(Math.random() * Characters.length - 1)]
-
         const initStory = await this.openIA.generateStoryInit({
             hero,
             context,
@@ -56,7 +57,9 @@ export class StoryService {
     }
 
 
-
+    async sendResponse(event) {
+        this.notificationService.sendNotification("1", { test: "notification" })
+    }
 
 
 

@@ -1,14 +1,19 @@
-import { Body, Controller, Post, Req, UseGuards, InternalServerErrorException, Logger, BadRequestException, Param, Sse } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards, InternalServerErrorException, Logger, BadRequestException, Param, Sse, Query } from '@nestjs/common';
 
 import { AddResponseDto, CreateStoryDto } from './dto/requestBody';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { StoryService } from './story.service';
 import { interval, map, Observable } from 'rxjs';
+import { NotificationService } from 'src/notification/notification.service';
+import { query, response } from 'express';
 
 @Controller('story')
 export class StoryController {
 
-  constructor(private storyService: StoryService) { }
+  constructor(
+    private storyService: StoryService,
+    private notificationService: NotificationService
+  ) { }
 
   @Post("/init")
   @UseGuards(AuthGuard)
@@ -46,8 +51,17 @@ export class StoryController {
   // }
 
   @Sse("storyEvents")
-  storyEvents(): Observable<any> {
-    return interval(1000).pipe(map((_) => ({ data: { hello: 'world' } })));
+  storyEvents(@Query("storyId") id): Observable<any> {
+
+    Logger.log("SSe conected", { storyid: id })
+    this.notificationService.addStory(id)
+
+    response.on("close", () => {
+      this.notificationService.removeStory(id)
+    })
+
+    return this.notificationService.events(id)
+
   }
 
 }
