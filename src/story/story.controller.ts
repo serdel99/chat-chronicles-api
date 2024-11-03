@@ -6,9 +6,12 @@ import { StoryService } from './story.service';
 import { interval, map, Observable } from 'rxjs';
 import { NotificationService } from 'src/notification/notification.service';
 import { query, response } from 'express';
+import axios from 'axios';
 
 @Controller('story')
 export class StoryController {
+
+  private logger = new Logger("StoryController")
 
   constructor(
     private storyService: StoryService,
@@ -30,30 +33,31 @@ export class StoryController {
       })
       return response
     } catch (e) {
-      Logger.error(e.message, "StoryController - Init")
+      this.logger.error(e, "StoryController - Init")
       throw new InternalServerErrorException();
     }
   }
 
-  // @Post(":id/response/poll")
-  // @UseGuards(AuthGuard)
-  // async responseWithPoll(@Req() req, @Param("id") storyId, @Body() body: AddResponseDto) {
-  //   try {
-  //     const response = await this.storyService.responseWithPoll({
-  //       user: req.user,
-  //       storyId,
-  //       response: body.response
-  //     });
-  //     return response
-  //   } catch (e) {
-  //     throw new InternalServerErrorException();
-  //   }
-  // }
+  @Post(":id/generate")
+  @UseGuards(AuthGuard)
+  async responseWithPoll(@Req() req, @Param("id") storyId, @Body() body: AddResponseDto) {
+    try {
+      const response = await this.storyService.genereateNextAct({
+        user: req.user,
+        storyId,
+        selectedOption: body.selectedOption
+      });
+      return response
+    } catch (e) {
+      throw new InternalServerErrorException();
+    }
+  }
 
   @Sse("storyEvents")
   storyEvents(@Query("storyId") id): Observable<any> {
 
-    Logger.log("SSe conected", { storyid: id })
+    this.logger.log(`SSE conected storyId:${id}`,)
+
     this.notificationService.addStory(id)
 
     response.on("close", () => {

@@ -21,4 +21,13 @@ declare global {
       user?: { sub: string, access_token: string }
     }
   }
+  namespace PrismaJson {
+    type Response = {
+      "action": string
+      "options": string[]
+      "hero_healt": number
+      "enemy_healt": number
+      "next_history": string
+    }
+  }
 }

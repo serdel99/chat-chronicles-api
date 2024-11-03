@@ -8,6 +8,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 datasource db {
   provider  = "postgresql"
   url  	    = env("DATABASE_URL")
@@ -29,6 +33,8 @@ model StoryAct {
     createdAt DateTime @default(now())
     story Story @relation(fields: [story_id], references: [id])
     story_id Int 
+    pollId String?
     type String
+    /// [Response]
     data Json
 }

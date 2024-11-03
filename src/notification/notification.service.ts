@@ -21,7 +21,6 @@ export class NotificationService {
     }
 
     sendNotification(id, data: object) {
-        console.log(this)
         if (this.allSucribedStories.has(id)) {
             this.allSucribedStories.get(id).eventSubject.next({
                 data

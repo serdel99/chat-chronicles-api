@@ -21,6 +21,7 @@ export class StoryRepository {
                 hero_name: story.hero_name,
                 story_acts: {
                     create: {
+                        pollId: storyInitAct.pollId,
                         type: storyInitAct.type,
                         data: storyInitAct.data
                     }
@@ -33,4 +34,43 @@ export class StoryRepository {
         return storyCreated
     }
 
+    async saveStoryAct(storyId, storyAct: StoryAct) {
+
+        const act = await this.database.storyAct.create({
+            data: {
+                pollId: storyAct.pollId,
+                data: storyAct.data,
+                type: storyAct.type,
+                story_id: storyId
+            }
+        })
+
+        return act;
+    }
+
+    async getStoryByPollId({ pollId }: { pollId?: string }) {
+        const act = await this.database.story.findFirstOrThrow({
+            include: {
+                story_acts: true
+            },
+            where: {
+                story_acts: {
+                    some: {
+                        pollId
+                    }
+                }
+            },
+        })
+        return act
+    }
+
+    async getStory(id: number) {
+        const story = await this.database.story.findFirst({
+            where: {
+                id
+            },
+            include: { story_acts: true }
+        })
+        return story
+    }
 }

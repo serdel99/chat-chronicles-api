@@ -1,6 +1,7 @@
 
 export type StoryAct = {
     type: string,
+    pollId: string,
     data: {
         hero_healt: number
         enemy_healt: number,

@@ -5,6 +5,5 @@ export type CreateStoryDto = {
 
 
 export type AddResponseDto = {
-    response: string,
-    data: string
+    selectedOption: string
 }

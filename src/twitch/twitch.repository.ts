@@ -2,7 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { GetUserAccessTokenDto, User } from './dto/twitchApiReponses';
+import { CreatePollResponse, GetUserAccessTokenDto, User } from './dto/twitchApiReponses';
 import qs from 'qs';
 import { CreatePollBody } from './dto/twitchApiRequests';
 import { response } from 'express';
@@ -75,7 +75,8 @@ export class TwitchRepository implements OnApplicationBootstrap {
             Logger.error(e, "Twitch Repository")
         }
     }
-    async initPoll(acces_token, data: CreatePollBody) {
+
+    async initPoll(acces_token, data: CreatePollBody): Promise<CreatePollResponse> {
         const response = await this.httpService.axiosRef.post(`${this.baseUrl}/polls`, data, { headers: this.getHeaders(acces_token) })
         return response.data
     }

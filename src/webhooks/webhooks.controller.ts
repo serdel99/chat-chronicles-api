@@ -10,7 +10,7 @@ export class WebhooksController {
     }
 
     @Post()
-    @UseGuards(WebhooksValidator)
+    // @UseGuards(WebhooksValidator)
     async processResponse(@Body() body) {
         this.eventEmmitter.emit(body.subscription.type, body.event)
         return ''
