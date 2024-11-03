@@ -15,6 +15,7 @@ import { NotificationService } from './notification/notification.service';
 import { PollListener } from './twitch/listeners/polls.listener';
 import { TwitchRepository } from './twitch/twitch.repository';
 import { TwitchService } from './twitch/twitch.service';
+import { RewardRedemptionListener } from './twitch/listeners/reward-redemption';
 
 
 @Module({
@@ -29,7 +30,8 @@ import { TwitchService } from './twitch/twitch.service';
     NotificationService,
     TwitchRepository,
     TwitchService,
-    PollListener
+    PollListener,
+    RewardRedemptionListener
   ],
 
 })

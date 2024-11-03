@@ -10,46 +10,46 @@ type EventObject = {
 export class NotificationService {
 
 
-    private readonly allSucribedStories: Map<number, EventObject>
+    private readonly allSucribedUsers: Map<number, EventObject>
 
     constructor() {
-        this.allSucribedStories = new Map();
+        this.allSucribedUsers = new Map();
     }
 
     events(id: number) {
-        return this.allSucribedStories.get(id).eventSubject.asObservable();
+        return this.allSucribedUsers.get(id).eventSubject.asObservable();
     }
 
     sendNotification(id, data: object) {
-        if (this.allSucribedStories.has(id)) {
-            this.allSucribedStories.get(id).eventSubject.next({
+        if (this.allSucribedUsers.has(id)) {
+            this.allSucribedUsers.get(id).eventSubject.next({
                 data
             })
         }
     }
 
-    addStory(id: number) {
-        if (this.allSucribedStories.has(id)) {
-            const existing = this.allSucribedStories.get(id);
-            this.allSucribedStories.set(id, {
+    addUser(id: number) {
+        if (this.allSucribedUsers.has(id)) {
+            const existing = this.allSucribedUsers.get(id);
+            this.allSucribedUsers.set(id, {
                 ...existing,
                 count: existing.count + 1
             })
         } else {
-            this.allSucribedStories.set(id, {
+            this.allSucribedUsers.set(id, {
                 count: 1,
                 eventSubject: new Subject<object>()
             })
         }
     }
 
-    removeStory(id: number) {
-        if (this.allSucribedStories.has(id)) {
-            const existing = this.allSucribedStories.get(id)
+    removeUser(id: number) {
+        if (this.allSucribedUsers.has(id)) {
+            const existing = this.allSucribedUsers.get(id)
             if (existing.count === 1) {
-                this.allSucribedStories.delete(id);
+                this.allSucribedUsers.delete(id);
             } else {
-                this.allSucribedStories.set(id, {
+                this.allSucribedUsers.set(id, {
                     ...existing,
                     count: existing.count - 1,
                 })

@@ -1,16 +1,14 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { OpeniaService } from 'src/openia/openia.service';
 import { TwitchService } from 'src/twitch/twitch.service';
 import { Characters } from './story.characters';
 import { StoryRepository } from './story.repository';
 import { Story, StoryAct } from './dto/story';
 import { NotificationService } from 'src/notification/notification.service';
-import { strict } from 'assert';
-import { string } from 'zod';
-import { CreatePollResponse } from 'src/twitch/dto/twitchApiReponses';
 import { EndPollEvent } from 'src/twitch/events/end-poll-event';
 import { User } from 'src/auth/types/user';
-
+import { RewardRedemptionEvent } from 'src/twitch/events/reward-redemption';
+import { Powerups } from "src/story/powerups/porwerups.definitions"
 
 @Injectable()
 export class StoryService {
@@ -126,8 +124,19 @@ export class StoryService {
 
     async sendPollResponse(pollResult: EndPollEvent) {
         try {
-            const story = await this.storyRepository.getStoryByPollId({ pollId: pollResult.id })
-            this.notificationService.sendNotification(story.id.toString(), pollResult)
+            this.notificationService.sendNotification(pollResult.event.broadcaster_user_id, pollResult.event)
+        }
+        catch (e) {
+            this.logger.log(e)
+        }
+    }
+
+    async sendPowerupRedemption(redemption: RewardRedemptionEvent) {
+        try {
+            this.logger.log(redemption)
+            const type = Object.values(Powerups).reduce((acc, powerUp) => powerUp.title === redemption.event.reward.title ? powerUp.type : acc, "")
+            const withTypeRemption = { ...redemption.event, type }
+            this.notificationService.sendNotification(redemption.event.broadcaster_user_id, withTypeRemption)
         }
         catch (e) {
             this.logger.log(e)

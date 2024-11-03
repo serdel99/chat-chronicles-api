@@ -54,14 +54,14 @@ export class StoryController {
   }
 
   @Sse("storyEvents")
-  storyEvents(@Query("storyId") id): Observable<any> {
+  storyEvents(@Query("userId") id): Observable<any> {
 
-    this.logger.log(`SSE conected storyId:${id}`,)
+    this.logger.log(`SSE conected userId:${id}`,)
 
-    this.notificationService.addStory(id)
+    this.notificationService.addUser(id)
 
     response.on("close", () => {
-      this.notificationService.removeStory(id)
+      this.notificationService.removeUser(id)
     })
 
     return this.notificationService.events(id)
