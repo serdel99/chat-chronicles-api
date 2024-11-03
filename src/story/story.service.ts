@@ -27,11 +27,14 @@ export class StoryService {
     }
 
     async initStory({ hero, context, user }) {
-        const randomEnemy = Characters.filter((characters) => characters !== hero)[Math.floor(Math.random() * Characters.length - 1)]
+        const enemys = Characters.filter((characters) => characters !== hero)
+
+        const enemy = enemys[Math.floor(Math.random() * enemys.length)]
+
         const initStory = await this.openIA.generateStoryInit({
             hero,
             context,
-            enemy: randomEnemy
+            enemy: enemy
         });
 
         // await this.twitchService.subscribeEndPollEvent({ user });
@@ -44,7 +47,7 @@ export class StoryService {
         const story: Story = {
             hero,
             hero_name: initStory.heroName,
-            enemy: randomEnemy,
+            enemy: enemy,
             enemy_name: initStory.enemyName,
             user_id: user.sub
         }
@@ -74,32 +77,46 @@ export class StoryService {
 
         const prevAct = story.story_acts[story.story_acts.length - 1]
 
+        console.log(JSON.stringify({
+            story: resume,
+            enemyHealt: prevAct.data.enemy_healt,
+            enemyName: story.enemy_name,
+            heroHealt: prevAct.data.hero_healt,
+            heroName: story.hero_name,
+            selectedOption
+        }))
+
+
         const nextAct = await this.openIA.generateNextHistory({
             story: resume,
             enemyHealt: prevAct.data.enemy_healt,
             enemyName: story.enemy_name,
-            heroHealt: prevAct.data.enemy_healt,
+            heroHealt: prevAct.data.hero_healt,
             heroName: story.hero_name,
             selectedOption
         })
 
-        const poll = await this.twitchService.initPoll({
-            user,
-            question: nextAct.action,
-            options: nextAct.options
-        })
+        const isFinalAct = nextAct.heroHealt <= 0 || nextAct.enemyHealt <= 0
 
+        let poll;
 
+        if (!isFinalAct) {
+            poll = await this.twitchService.initPoll({
+                user,
+                question: nextAct.action,
+                options: nextAct.options
+            })
+        }
 
         const storyAct: StoryAct = {
-            type: "act",
-            pollId: poll.id,
+            type: isFinalAct ? "final_act" : "next_act",
+            pollId: poll?.id,
             data: {
-                next_history: nextAct.next_history,
+                next_history: nextAct.nextHistory,
                 options: nextAct.options,
                 action: nextAct.action,
-                hero_healt: 0,
-                enemy_healt: 0
+                hero_healt: nextAct.heroHealt,
+                enemy_healt: nextAct.enemyHealt
             }
         }
         const savedAct = this.storyRepository.saveStoryAct(story.id, storyAct)

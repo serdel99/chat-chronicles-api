@@ -1,9 +1,8 @@
 export const Characters = [
-    'robot',
-    'samurai',
-    'vampire',
-    'soldier',
-    'wizard',
-    'ninja',
-    'knight'
+    'Robot',
+    'Samurai',
+    'Vampire',
+    'Soldier',
+    'Wizard',
+    "Warrior",
 ]
