@@ -36,7 +36,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
             client.disconnect();
         }
     }
-    handleDisconnect(client: any) {
-        // console.log(client);
+    handleDisconnect(client: Socket) {
+
     }
 }

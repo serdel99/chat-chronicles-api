@@ -28,7 +28,8 @@ export const promptInitTemplate = ChatPromptTemplate.fromMessages([
     ["human", `Genera la introduccion de la historia utilizando como base este contexto del usuario {context},
         el heroe sera un {hero} el enemigo sera un {enemy},
         genera 4 elecciones que tenga que tomar el personaje principal para continuar la historia,
-        no hagas referencia a los puntos de salud explicitamente en la historia,
+        no hagas referencia a los puntos de salud explicitamente en la historia.
+        genra la historia en el idioma: "{lang}"
         No pongas en el parrafo explicitamente las opciones, es importante que muestres el texto en markdown utilizando headings, textos en bold, italic y blockquotes`
     ]
 ])
@@ -38,7 +39,8 @@ export const promtResponseTemplate = ChatPromptTemplate.fromMessages([
     ["human", `  La historia hasta ahora es: "{story}", 
                         El héroe {heroName} (salud: {heroHealt}, se enfrenta al enemigo {enemyName} (salud: {enemyHealt}.
                         Los espectadores han elegido: {selectedOption}.
-                        Describe lo que sucede después ten encuenta la vida acutual del enemigo y del heroe, no debe tener mas de 150 palabras
+                        Describe lo que sucede después ten encuenta la vida acutual del enemigo y del heroe, no debe tener mas de 150 palabras,
+                        genra la historia en el idioma: "{lang}",
                         calcula nuevamente la vida del heroe y el villano en base a las acciones que tomen la vida de alguno debe disminuir,
                         genera 4 elecciones que tenga que tomar el personaje principal para continuar la historia,
                         no hagas referencia a los puntos de salud explicitamente en la historia,

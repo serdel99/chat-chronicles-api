@@ -9,6 +9,9 @@ import { EndPollEvent } from 'src/twitch/events/end-poll-event';
 import { User } from 'src/auth/types/user';
 import { RewardRedemptionEvent } from 'src/twitch/events/reward-redemption';
 import { Powerups } from "src/story/powerups/porwerups.definitions"
+import { randomUUID } from 'crypto';
+
+type InitStory = { hero: string, context: string, user: Express.Request["user"], lang: string }
 
 @Injectable()
 export class StoryService {
@@ -24,7 +27,7 @@ export class StoryService {
 
     }
 
-    async initStory({ hero, context, user }) {
+    async initStory({ hero, context, user, lang }: InitStory) {
         const enemys = Characters.filter((characters) => characters !== hero)
 
         const enemy = enemys[Math.floor(Math.random() * enemys.length)]
@@ -32,15 +35,20 @@ export class StoryService {
         const initStory = await this.openIA.generateStoryInit({
             hero,
             context,
+            lang,
             enemy: enemy
         });
 
-        // await this.twitchService.subscribeEndPollEvent({ user });
-        // const poll = await this.twitchService.initPoll({
-        //     user,
-        //     question: initStory.action,
-        //     options: initStory.options
-        // })
+        let poll;
+
+        if (!user.isTestUser) {
+            await this.twitchService.subscribeEndPollEvent({ user });
+            poll = await this.twitchService.initPoll({
+                user,
+                question: initStory.action,
+                options: initStory.options
+            })
+        }
 
         const story: Story = {
             hero,
@@ -52,7 +60,7 @@ export class StoryService {
 
         const storyAct: StoryAct = {
             type: "init_story",
-            pollId: "231241",
+            pollId: poll?.id ? poll.id : randomUUID(),
             data: {
 
                 enemy_healt: initStory.enemyHealt,
@@ -67,7 +75,7 @@ export class StoryService {
         return storyCreated
     }
 
-    async genereateNextAct({ user, selectedOption, storyId }: { user: User, selectedOption: string, storyId: string }) {
+    async genereateNextAct({ user, selectedOption, storyId, lang }: { user: User, selectedOption: string, storyId: string, lang: string }) {
 
         const story = await this.storyRepository.getStory(Number(storyId));
 
@@ -75,22 +83,13 @@ export class StoryService {
 
         const prevAct = story.story_acts[story.story_acts.length - 1]
 
-        console.log(JSON.stringify({
-            story: resume,
-            enemyHealt: prevAct.data.enemy_healt,
-            enemyName: story.enemy_name,
-            heroHealt: prevAct.data.hero_healt,
-            heroName: story.hero_name,
-            selectedOption
-        }))
-
-
         const nextAct = await this.openIA.generateNextHistory({
             story: resume,
             enemyHealt: prevAct.data.enemy_healt,
             enemyName: story.enemy_name,
             heroHealt: prevAct.data.hero_healt,
             heroName: story.hero_name,
+            lang,
             selectedOption
         })
 
@@ -98,17 +97,24 @@ export class StoryService {
 
         let poll;
 
-        // if (!isFinalAct) {
-        //     poll = await this.twitchService.initPoll({
-        //         user,
-        //         question: nextAct.action,
-        //         options: nextAct.options
-        //     })
-        // }
+        if (!isFinalAct && !user.isTestUser) {
+            poll = await this.twitchService.initPoll({
+                user,
+                question: nextAct.action,
+                options: nextAct.options
+            })
+        }
+
+        if (user.isTestUser) {
+            console.log(JSON.stringify({
+                options: nextAct.options,
+                action: nextAct.action,
+            }))
+        }
 
         const storyAct: StoryAct = {
             type: isFinalAct ? "final_act" : "next_act",
-            pollId: "123455",
+            pollId: poll?.id ? poll.id : randomUUID(),
             data: {
                 next_history: nextAct.nextHistory,
                 options: nextAct.options,

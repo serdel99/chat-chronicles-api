@@ -3,6 +3,16 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 
 import { promptInitTemplate, promtResponseTemplate, initJson, responseJson } from './definitions'
 
+
+type GenerateNextHistory = {
+    story: string,
+    heroName: string,
+    enemyName: string,
+    enemyHealt: number,
+    heroHealt: number,
+    selectedOption: string,
+    lang: string
+}
 @Injectable()
 export class OpeniaService {
 
@@ -11,9 +21,8 @@ export class OpeniaService {
         temperature: 0.7,
     })
 
-
-    async generateStoryInit({ hero, context, enemy }) {
-        const response = await promptInitTemplate.pipe(this.llm.withStructuredOutput(initJson)).invoke({ hero, enemy, context })
+    async generateStoryInit({ hero, context, enemy, lang }) {
+        const response = await promptInitTemplate.pipe(this.llm.withStructuredOutput(initJson)).invoke({ hero, enemy, context, lang })
         return response
 
         // return {
@@ -33,14 +42,14 @@ export class OpeniaService {
     }
 
     async generateNextHistory({
-        story, heroName, enemyName, enemyHealt, heroHealt, selectedOption }: {
-            story: string,
-            heroName: string,
-            enemyName: string,
-            enemyHealt: number,
-            heroHealt: number,
-            selectedOption: string
-        }) {
+        story,
+        heroName,
+        enemyName,
+        enemyHealt,
+        heroHealt,
+        selectedOption,
+        lang
+    }: GenerateNextHistory) {
         const response = await promtResponseTemplate.pipe(
             this.llm.withStructuredOutput(responseJson)
         ).invoke({
@@ -49,7 +58,8 @@ export class OpeniaService {
             enemyName,
             enemyHealt,
             heroHealt,
-            selectedOption
+            selectedOption,
+            lang,
         })
         return response
 

@@ -29,6 +29,7 @@ export class StoryController {
       const response = await this.storyService.initStory({
         hero: createDto.hero,
         context: createDto.context,
+        lang: createDto.lang,
         user: req.user
       })
       return response
@@ -45,7 +46,8 @@ export class StoryController {
       const response = await this.storyService.genereateNextAct({
         user: req.user,
         storyId,
-        selectedOption: body.selectedOption
+        selectedOption: body.selectedOption,
+        lang: body.lang
       });
       return response
     } catch (e) {

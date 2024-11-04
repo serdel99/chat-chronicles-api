@@ -26,7 +26,10 @@ export class AuthGuard implements CanActivate {
         }
         try {
             const decoded = await this.authService.validateIdToken(token)
-            request['user'] = { ...decoded.payload, access_token };
+
+            const isTestUser = decoded.payload.sub === this.configService.get("TWITCH_DEV_USER");
+
+            request['user'] = { ...decoded.payload, access_token, isTestUser };
 
             if (this.configService.get("ENABLE_TWITCH_MOCK")) {
                 request['user'].sub = this.configService.get("TWITCH_USER_MOCK");

@@ -1,4 +1,5 @@
 export type User = {
     sub: string
-    access_token
+    access_token,
+    isTestUser: boolean
 }

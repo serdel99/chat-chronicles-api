@@ -12,7 +12,6 @@ export class PollListener {
 
     @OnEvent("channel.poll.end")
     onPollEnd(event: EndPollEvent) {
-        console.log(event.event.broadcaster_user_id)
         this.storyService.sendPollResponse(event);
     }
 }

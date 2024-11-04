@@ -18,7 +18,7 @@ declare global {
   namespace Express {
     interface Request {
 
-      user?: { sub: string, access_token: string }
+      user?: { sub: string, access_token: string, isTestUser: boolean }
     }
   }
   namespace PrismaJson {
