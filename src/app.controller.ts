@@ -1,13 +1,12 @@
-import { Controller, Body, Post, Next, Logger, Res, UnauthorizedException, Request, UseGuards, } from '@nestjs/common';
-import { AppService } from './app.service';
-import { AuthService } from './auth/auth.service';
-import axios from 'axios';
-import { AuthGuard } from './auth/auth.guard';
+import { Controller, Get } from '@nestjs/common';
 
 
 @Controller()
 export class AppController {
   constructor() { }
 
-
+  @Get("ping")
+  ping() {
+    return "pong"
+  }
 }

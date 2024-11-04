@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { CreatePollResponse, GetUserAccessTokenDto, User } from './dto/twitchApiReponses';
 import qs from 'qs';
 import { CreatePollBody } from './dto/twitchApiRequests';
-import { response } from 'express';
+import axios from 'axios';
 
 
 @Injectable()
@@ -72,7 +72,13 @@ export class TwitchRepository implements OnApplicationBootstrap {
             this.accessToken = data.access_token
         }
         catch (e) {
-            Logger.error(e, "Twitch Repository")
+            if (axios.isAxiosError(e)) {
+
+                Logger.error("Error at request " + JSON.stringify(e.response.data), "Twitch Repository")
+
+            } else {
+                Logger.error(e.message, "Twitch Repository")
+            }
         }
     }
 
