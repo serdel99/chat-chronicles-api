@@ -16,12 +16,14 @@ import { PollListener } from './twitch/listeners/polls.listener';
 import { TwitchRepository } from './twitch/twitch.repository';
 import { TwitchService } from './twitch/twitch.service';
 import { RewardRedemptionListener } from './twitch/listeners/reward-redemption';
+import { WebsocketGateway } from './websockets/websockets.gateway';
 
 
 @Module({
   imports: [ConfigModule, HttpModule, AuthModule, EventEmitterModule.forRoot(), WebhooksModule],
   controllers: [AppController, StoryController],
   providers: [
+    WebsocketGateway,
     AppService,
     StoryService,
     StoryRepository,

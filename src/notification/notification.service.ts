@@ -1,5 +1,7 @@
 import { Injectable, Logger, Scope } from '@nestjs/common';
 import { Subject } from 'rxjs';
+import { WebsocketGateway } from 'src/websockets/websockets.gateway';
+import { object } from 'zod';
 
 type EventObject = {
     count: number,
@@ -12,7 +14,7 @@ export class NotificationService {
 
     private readonly allSucribedUsers: Map<number, EventObject>
 
-    constructor() {
+    constructor(private websocket: WebsocketGateway) {
         this.allSucribedUsers = new Map();
     }
 
@@ -21,11 +23,7 @@ export class NotificationService {
     }
 
     sendNotification(id, data: object) {
-        if (this.allSucribedUsers.has(id)) {
-            this.allSucribedUsers.get(id).eventSubject.next({
-                data
-            })
-        }
+        this.websocket.server.to(id).emit("notification", data);
     }
 
     addUser(id: number) {

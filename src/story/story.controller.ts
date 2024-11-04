@@ -3,10 +3,10 @@ import { Body, Controller, Post, Req, UseGuards, InternalServerErrorException, L
 import { AddResponseDto, CreateStoryDto } from './dto/requestBody';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { StoryService } from './story.service';
-import { interval, map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { NotificationService } from 'src/notification/notification.service';
-import { query, response } from 'express';
-import axios from 'axios';
+import { response } from 'express';
+
 
 @Controller('story')
 export class StoryController {

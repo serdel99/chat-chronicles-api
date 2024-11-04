@@ -41,7 +41,6 @@ export class AuthService {
     }
 
     async validateIdToken(idToken: string): Promise<any> {
-
         try {
 
             const decoded = jwt.decode(idToken, { complete: true });

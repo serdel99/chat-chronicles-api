@@ -36,11 +36,11 @@ export class StoryService {
         });
 
         // await this.twitchService.subscribeEndPollEvent({ user });
-        const poll = await this.twitchService.initPoll({
-            user,
-            question: initStory.action,
-            options: initStory.options
-        })
+        // const poll = await this.twitchService.initPoll({
+        //     user,
+        //     question: initStory.action,
+        //     options: initStory.options
+        // })
 
         const story: Story = {
             hero,
@@ -52,7 +52,7 @@ export class StoryService {
 
         const storyAct: StoryAct = {
             type: "init_story",
-            pollId: poll.id,
+            pollId: "231241",
             data: {
 
                 enemy_healt: initStory.enemyHealt,
@@ -98,17 +98,17 @@ export class StoryService {
 
         let poll;
 
-        if (!isFinalAct) {
-            poll = await this.twitchService.initPoll({
-                user,
-                question: nextAct.action,
-                options: nextAct.options
-            })
-        }
+        // if (!isFinalAct) {
+        //     poll = await this.twitchService.initPoll({
+        //         user,
+        //         question: nextAct.action,
+        //         options: nextAct.options
+        //     })
+        // }
 
         const storyAct: StoryAct = {
             type: isFinalAct ? "final_act" : "next_act",
-            pollId: poll?.id,
+            pollId: "123455",
             data: {
                 next_history: nextAct.nextHistory,
                 options: nextAct.options,

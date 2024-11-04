@@ -65,7 +65,7 @@ export class TwitchService {
         }
         const response = await this.twitchRepository.initPoll(user.access_token, pollOptions)
 
-        console.log(JSON.stringify(this.createMockedPoll(response.data[0])))
+        // console.log(JSON.stringify(this.createMockedPoll(response.data[0])))
         return response.data[0];
     }
 
