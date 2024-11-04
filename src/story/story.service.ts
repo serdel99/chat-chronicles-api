@@ -71,7 +71,7 @@ export class StoryService {
 
         const story = await this.storyRepository.getStory(Number(storyId));
 
-        const resume = story.story_acts.reduce<string>((acc, storyAct) => { return acc.concat(" ", storyAct.data.next_history) }, "")
+        const resume = story.story_acts.reduce((acc, storyAct) => { return acc.concat(" ", storyAct.data.next_history) }, "")
 
         const prevAct = story.story_acts[story.story_acts.length - 1]
 
