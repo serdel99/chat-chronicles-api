@@ -48,7 +48,7 @@ export class TwitchRepository implements OnApplicationBootstrap {
             client_id: this.clientId,
             client_secret: this.clientSecret,
             grant_type: "authorization_code",
-            redirect_uri: "http://localhost:5173"
+            redirect_uri: this.configService.get("TWITCH_REDIRECT_URL")
         }
         const response = await this.httpService.axiosRef.post<GetUserAccessTokenDto>(
             "https://id.twitch.tv/oauth2/token", qs.stringify(body), {
@@ -62,14 +62,14 @@ export class TwitchRepository implements OnApplicationBootstrap {
     async onApplicationBootstrap() {
         try {
             Logger.debug("Try to get twitch app access_token", "Twitch Repository",)
-            // const { data } = await this.httpService.axiosRef.post("https://id.twitch.tv/oauth2/token", {
-            //     client_id: this.configService.get("TWITCH_CLIENT_ID"),
-            //     client_secret: this.configService.get("TWITCH_CLIENT_SECRET"),
-            //     grant_type: "client_credentials"
-            // })
+            const { data } = await this.httpService.axiosRef.post("https://id.twitch.tv/oauth2/token", {
+                client_id: this.configService.get("TWITCH_CLIENT_ID"),
+                client_secret: this.configService.get("TWITCH_CLIENT_SECRET"),
+                grant_type: "client_credentials"
+            })
             this.clientId = this.configService.get("TWITCH_CLIENT_ID");
             this.clientSecret = this.configService.get("TWITCH_CLIENT_SECRET");
-            this.accessToken = "quo8z45rtesfvuz13gu95br92khnur"
+            this.accessToken = data.access_token
         }
         catch (e) {
             Logger.error(e, "Twitch Repository")

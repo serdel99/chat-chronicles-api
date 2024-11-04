@@ -12,7 +12,6 @@ export class WebhooksController {
     @Post()
     // @UseGuards(WebhooksValidator)
     async processResponse(@Body() body) {
-        console.log(body.subscription.type)
         this.eventEmmitter.emit(body.subscription.type, body)
         return ''
     }
