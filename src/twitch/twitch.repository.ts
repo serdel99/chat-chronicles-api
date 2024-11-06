@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { CreatePollResponse, GetUserAccessTokenDto, User } from './dto/twitchApiReponses';
@@ -16,12 +16,37 @@ export class TwitchRepository implements OnApplicationBootstrap {
     private clientSecret: string
     private baseUrl: string
 
+    private logger = new Logger("TwitchRepository")
 
     constructor(
         private readonly httpService: HttpService,
         private readonly configService: ConfigService
     ) {
         this.baseUrl = this.configService.get("TWITCH_API_BASE_URL");
+    }
+
+
+    async onApplicationBootstrap() {
+        try {
+            Logger.debug("Try to get twitch app access_token", "Twitch Repository",)
+            const { data } = await this.httpService.axiosRef.post("https://id.twitch.tv/oauth2/token", {
+                client_id: this.configService.get("TWITCH_CLIENT_ID"),
+                client_secret: this.configService.get("TWITCH_CLIENT_SECRET"),
+                grant_type: "client_credentials"
+            })
+            this.clientId = this.configService.get("TWITCH_CLIENT_ID");
+            this.clientSecret = this.configService.get("TWITCH_CLIENT_SECRET");
+            this.accessToken = data.access_token
+        }
+        catch (e) {
+            if (axios.isAxiosError(e)) {
+
+                Logger.error("Error at request " + JSON.stringify(e.response.data), "Twitch Repository")
+
+            } else {
+                Logger.error(e.message, "Twitch Repository")
+            }
+        }
     }
 
 
@@ -58,37 +83,29 @@ export class TwitchRepository implements OnApplicationBootstrap {
         return response.data
     }
 
-
-    async onApplicationBootstrap() {
-        try {
-            Logger.debug("Try to get twitch app access_token", "Twitch Repository",)
-            const { data } = await this.httpService.axiosRef.post("https://id.twitch.tv/oauth2/token", {
-                client_id: this.configService.get("TWITCH_CLIENT_ID"),
-                client_secret: this.configService.get("TWITCH_CLIENT_SECRET"),
-                grant_type: "client_credentials"
-            })
-            this.clientId = this.configService.get("TWITCH_CLIENT_ID");
-            this.clientSecret = this.configService.get("TWITCH_CLIENT_SECRET");
-            this.accessToken = data.access_token
-        }
-        catch (e) {
-            if (axios.isAxiosError(e)) {
-
-                Logger.error("Error at request " + JSON.stringify(e.response.data), "Twitch Repository")
-
-            } else {
-                Logger.error(e.message, "Twitch Repository")
-            }
-        }
-    }
-
     async initPoll(acces_token, data: CreatePollBody): Promise<CreatePollResponse> {
         const response = await this.httpService.axiosRef.post(`${this.baseUrl}/polls`, data, { headers: this.getHeaders(acces_token) })
         return response.data
     }
 
-    async subscribeEvent({ data, acces_token }) {
-        const response = await this.httpService.axiosRef.post(`${this.baseUrl}/eventsub/subscriptions`, data, { headers: this.getHeaders(acces_token) })
-        return response;
+    async subscribeEvent({ data }) {
+        try {
+            const response = await this.httpService.axiosRef.post(`${this.baseUrl}/eventsub/subscriptions`, data, { headers: this.getHeaders(this.accessToken) })
+            return response;
+        } catch (e) {
+            if (axios.isAxiosError(e)) {
+                if (e.response?.status === 409) {
+                    this.logger.log(`subscription already exists`)
+                    return;
+                }
+            }
+            throw e;
+        }
     }
+
+    async getSubscriptions() {
+        const response = await this.httpService.axiosRef.get(`${this.baseUrl}/eventsub/subscriptions`, { headers: this.getHeaders(this.accessToken) })
+        return response.data;
+    }
+
 }

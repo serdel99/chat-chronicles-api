@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { TwitchRepository } from './twitch.repository';
 import { User } from 'src/auth/types/user';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 
 @Injectable()
 export class TwitchService {
@@ -69,6 +70,7 @@ export class TwitchService {
     }
 
     async subscribeEndPollEvent({ user }) {
+
         const data = {
             type: "channel.poll.end",
             version: "1",
@@ -81,7 +83,33 @@ export class TwitchService {
                 "secret": this.configService.getOrThrow("TWITCH_WEBHOOK_SECRET"),
             }
         }
-        const res = await this.twitchRepository.subscribeEvent({ data, acces_token: user.access_token });
+        await this.twitchRepository.subscribeEvent({ data });
+        return;
+
+    }
+
+    async subscribeMessageEvent({ user }: { user: Express.Request["user"] }) {
+        const data = {
+            type: "channel.chat.message",
+            version: "1",
+            condition: {
+                "broadcaster_user_id": user.sub,
+                "user_id": user.sub,
+            },
+            transport: {
+                "method": "webhook",
+                "callback": this.configService.getOrThrow("TWITCH_CALLBACK_URL"),
+                "secret": this.configService.getOrThrow("TWITCH_WEBHOOK_SECRET"),
+            }
+        }
+
+        const res = await this.twitchRepository.subscribeEvent({ data });
         return res.data
     }
+
+    async getSubscriptions() {
+        const res = await this.twitchRepository.getSubscriptions()
+        return res
+    }
+
 }
