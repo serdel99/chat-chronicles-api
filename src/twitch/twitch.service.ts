@@ -2,12 +2,21 @@ import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common
 import { TwitchRepository } from './twitch.repository';
 import { User } from 'src/auth/types/user';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
+import { Powerups } from 'src/story/powerups/porwerups.definitions';
+import { title } from 'process';
+import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
 export class TwitchService {
 
-    constructor(private twitchRepository: TwitchRepository, private configService: ConfigService) { }
+    private logger = new Logger("TwichService");
+
+
+    constructor(
+        private twitchRepository: TwitchRepository,
+        private configService: ConfigService,
+        private databaseService: DatabaseService
+    ) { }
 
     async getAccessToken(codeToken: string) {
         return this.twitchRepository.getOauthTokens(codeToken);
@@ -15,6 +24,34 @@ export class TwitchService {
 
     async getUser({ access_token }) {
         return this.twitchRepository.getUser({ access_token });
+    }
+
+    async createCustomRewards({ user }: { user: Express.Request["user"] }) {
+        try {
+            const createdUser = await this.databaseService.user.findFirst({ where: { id: user.sub } })
+            if (!createdUser) {
+                this.logger.debug(`New User ${user.sub} creating rewards`)
+                const reward = Object.values(Powerups).map((reward) => this.twitchRepository.createCustomReward({ user, reward: { title: reward.title, cost: reward.cost } }))
+                const rewards = await Promise.all(reward)
+                await this.databaseService.user.create({
+                    data: {
+                        id: user.sub,
+                        rewards: rewards.map((reward) => ({
+                            title: reward.data[0].title,
+                            cost: reward.data[0].cost,
+                            id: reward.data[0].id
+                        }))
+                    }
+                })
+            } else {
+                this.logger.debug(`User ${user.sub} get rewards`)
+            }
+            return;
+
+        } catch (e) {
+            this.logger.error(e.message)
+            throw new InternalServerErrorException();
+        }
     }
 
     createMockedPoll(poll: any) {

@@ -2,10 +2,11 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, InternalServerErrorException, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { CreatePollResponse, GetUserAccessTokenDto, User } from './dto/twitchApiReponses';
+import { CreateCustomRewardResponse, CreatePollResponse, GetUserAccessTokenDto, User } from './dto/twitchApiReponses';
 import qs from 'qs';
 import { CreatePollBody } from './dto/twitchApiRequests';
 import axios from 'axios';
+import { error } from 'console';
 
 
 @Injectable()
@@ -15,20 +16,35 @@ export class TwitchRepository implements OnApplicationBootstrap {
     private clientId?: string
     private clientSecret: string
     private baseUrl: string
-
+    private
     private logger = new Logger("TwitchRepository")
+
 
     constructor(
         private readonly httpService: HttpService,
         private readonly configService: ConfigService
     ) {
         this.baseUrl = this.configService.get("TWITCH_API_BASE_URL");
+        this.httpService.axiosRef.interceptors.response.use((response) => {
+            return response
+        }, (error) => {
+            if (axios.isAxiosError(error)) {
+                this.logger.error(`Error twitch api request ${error.config?.url}${error.response.data ? JSON.stringify(error.response?.data) : error.message}`)
+            } else {
+                this.logger.error(error);
+            }
+            return Promise.reject(error);
+        })
     }
 
 
     async onApplicationBootstrap() {
         try {
             Logger.debug("Try to get twitch app access_token", "Twitch Repository",)
+            if (this.configService.get("ENABLE_TWITCH_MOCK")) {
+                this.clientId = this.configService.get("TWITCH_CLIENT_ID");
+                return;
+            }
             const { data } = await this.httpService.axiosRef.post("https://id.twitch.tv/oauth2/token", {
                 client_id: this.configService.get("TWITCH_CLIENT_ID"),
                 client_secret: this.configService.get("TWITCH_CLIENT_SECRET"),
@@ -80,6 +96,12 @@ export class TwitchRepository implements OnApplicationBootstrap {
             headers: { 'content-type': 'application/x-www-form-urlencoded' }
         })
         Logger.log(response.data, "Oauth tokens");
+        return response.data
+    }
+
+    async createCustomReward({ user, reward }: { user: Express.Request["user"], reward: { title: string, cost: number } }): Promise<CreateCustomRewardResponse> {
+        this.logger.debug(`Create custom reward for user ${user.sub}`)
+        const response = await this.httpService.axiosRef.post<CreateCustomRewardResponse>(`${this.baseUrl}/channel_points/custom_rewards?broadcaster_id=${user.sub}`, reward, { headers: this.getHeaders(user.access_token) })
         return response.data
     }
 

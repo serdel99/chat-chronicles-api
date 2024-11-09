@@ -28,6 +28,9 @@ export class StoryService {
     }
 
     async initStory({ hero, context, user, lang }: InitStory) {
+
+        await this.twitchService.createCustomRewards({ user });
+
         const enemys = Characters.filter((characters) => characters !== hero)
 
         const enemy = enemys[Math.floor(Math.random() * enemys.length)]

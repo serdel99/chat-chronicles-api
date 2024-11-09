@@ -19,6 +19,14 @@ export type User = {
     "profile_image_url": string,
 }
 
+export type CreateCustomRewardResponse = {
+    data: [{
+        "id": string,
+        "cost": number,
+        "title": string,
+    }]
+}
+
 export type CreatePollResponse = {
     data: [
         {

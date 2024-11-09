@@ -38,3 +38,9 @@ model StoryAct {
     /// [Response]
     data Json
 }
+
+model User {
+  id String @id
+   /// [Rewards]
+  rewards  Json?
+}

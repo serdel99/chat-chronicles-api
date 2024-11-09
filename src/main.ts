@@ -29,5 +29,10 @@ declare global {
       "enemy_healt": number
       "next_history": string
     }
+    type Reward = {
+      type: string,
+      title: string,
+      cost: number,
+    }
   }
 }
